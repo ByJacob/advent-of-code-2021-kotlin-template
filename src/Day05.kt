@@ -1,5 +1,13 @@
+import java.awt.Color
+import java.awt.Graphics2D
+import java.awt.Image
+import java.awt.image.BufferedImage
+import javax.swing.ImageIcon
+import javax.swing.JFrame
+import javax.swing.JLabel
 import kotlin.math.max
 import kotlin.math.min
+
 
 data class Point(val x: Int, val y: Int)
 
@@ -33,6 +41,36 @@ fun createLineFromPoints(startPoint: Point, endPoint: Point): Line {
     return Line(points.toList(), maxPointValue, minPointValue, isSlanting)
 }
 
+fun createSampleImage(size: Int, lines: List<Line>): Image {
+    // instantiate a new BufferedImage (subclass of Image) instance
+    val scale = 1200/size
+    val img = BufferedImage(1300, 1300, BufferedImage.TYPE_INT_ARGB)
+
+    //draw something on the image
+    paintOnImage(img, lines, scale)
+    return img
+}
+
+fun paintOnImage(img: BufferedImage, lines: List<Line>, scale: Int) {
+    // get a drawable Graphics2D (subclass of Graphics) object
+    val g2d = img.graphics as Graphics2D
+
+
+    g2d.color = Color.RED
+    for (line in lines){
+        g2d.drawLine(line.allPoints.first().x*scale,
+            line.allPoints.first().y*scale,
+            line.allPoints.last().x*scale,
+            line.allPoints.last().y*scale)
+    }
+
+    // drawing on images can be very memory-consuming
+    // so it's better to free resources early
+    // it's not necessary, though
+    g2d.dispose()
+}
+
+
 fun main() {
 
     fun parseInputToLines(input: List<String>): List<Line> {
@@ -59,9 +97,14 @@ fun main() {
                 board[point.y][point.x] += 1
             }
         }
-//        board.forEach { row ->
-//            println(row.joinToString(separator = " "))
-//        }
+//        // uncomment for print lines in image
+//        val frame = JFrame()
+//        frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+//        val img = createSampleImage(maxIndexValue, lines)
+//        val icon = ImageIcon(img)
+//        frame.add(JLabel(icon))
+//        frame.pack()
+//        frame.isVisible = true
         return board.flatMap { it.toList() }.filter { it > 1 }.size
     }
 
